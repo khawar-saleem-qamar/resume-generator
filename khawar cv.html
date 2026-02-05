@@ -1,0 +1,927 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Khawar Saleem Qamar - Full Stack Developer Resume</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        color: #222;
+        background-color: #64748b;
+        line-height: 1.3;
+        font-size: 9pt;
+      }
+
+      .resume-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      /* STRICT WIDTH FOR PDF ACCURACY */
+      .resume-container {
+        width: 8.5in;
+        max-width: 8.5in;
+        background: white;
+        padding: 0.5in;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+      }
+
+      .header {
+        text-align: center;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #1a365d;
+        margin-bottom: 10px;
+        width: 100%;
+      }
+
+      .header h1 {
+        font-size: 20pt;
+        font-weight: 700;
+        color: #1a365d;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+      }
+
+      .job-title {
+        font-size: 11pt;
+        font-weight: 600;
+        color: #2c5282;
+        margin-bottom: 5px;
+      }
+
+      .contact-info {
+        font-size: 10pt;
+        color: #333;
+      }
+
+      .contact-divider {
+        margin: 0 8px;
+        color: #1a365d;
+      }
+
+      .section {
+        margin-bottom: 10px;
+        width: 100%;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .section-title {
+        font-size: 12pt;
+        font-weight: 700;
+        color: #1a365d;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        border-bottom: 1.5px solid #1a365d;
+        padding-bottom: 2px;
+        margin-bottom: 6px;
+        width: 100%;
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+
+      .summary-text {
+        font-size: 10pt;
+        line-height: 1.4;
+        text-align: justify;
+        width: 100%;
+      }
+
+      .skills-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .skills-table td {
+        padding: 3px 5px;
+        font-size: 8pt;
+        vertical-align: top;
+        width: 50%;
+      }
+
+      .skill-category-title {
+        font-weight: 700;
+        color: #2c5282;
+        font-size: 10pt;
+      }
+
+      .skill-list {
+        color: #333;
+        font-size: 10pt
+      }
+
+      .experience-item {
+        margin-bottom: 8px;
+        width: 100%;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .experience-header {
+        display: table;
+        width: 100%;
+        margin-bottom: 3px;
+      }
+
+      .experience-left {
+        display: table-cell;
+        text-align: left;
+        font-size: 11pt;
+      }
+
+      .experience-title {
+        font-size: 9.5pt;
+        font-weight: 700;
+        color: #222;
+      }
+
+      .experience-company {
+        font-size: 9pt;
+        font-weight: 600;
+        color: #2c5282;
+      }
+
+      .experience-location {
+        font-size: 8.5pt;
+        color: #555;
+      }
+
+      .experience-list {
+        list-style: none;
+        padding-left: 0;
+        width: 100%;
+      }
+
+      .experience-list li {
+        position: relative;
+        padding-left: 12px;
+        margin-bottom: 2px;
+        font-size: 10pt;
+        line-height: 1.4;
+      }
+
+      .experience-list li::before {
+        content: "▸";
+        position: absolute;
+        left: 0;
+        color: #2c5282;
+        font-size: 7pt;
+      }
+
+      .projects-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 14px;
+        width: 100%;
+      }
+
+      .project-item {
+        margin-bottom: 4px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .project-name {
+        font-size: 10pt;
+        font-weight: 700;
+        color: #222;
+      }
+
+      .project-tech {
+        font-size: 9pt;
+        color: #2c5282;
+        margin-bottom: 2px;
+        font-style: italic;
+      }
+
+      .project-list {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .project-list li {
+        position: relative;
+        padding-left: 10px;
+        margin-bottom: 1.5px;
+        font-size: 9pt;
+        line-height: 1.3;
+      }
+
+      .project-list li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: #2c5282;
+        font-weight: bold;
+      }
+
+      .project-category {
+        font-size: 11pt;
+        font-weight: 600;
+        color: #2c5282;
+        margin-top: 8px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid #cbd5e1;
+        padding-bottom: 2px;
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+
+      .project-category:first-child {
+        margin-top: 0;
+      }
+
+      .education-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .education-table td {
+        vertical-align: top;
+        padding: 2px 0;
+      }
+
+      .education-left {
+        text-align: left;
+      }
+
+      .education-right {
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .degree {
+        font-size: 10pt;
+        font-weight: 700;
+        color: #222;
+      }
+
+      .gpa {
+        font-size: 10pt;
+        font-weight: 700;
+        color: #1a365d;
+      }
+
+      .full-width {
+        grid-column: 1 / -1;
+      }
+
+      @media print {
+        @page {
+          size: letter;
+          /* margin: 0.5in; */
+        }
+
+        body {
+          background: white !important;
+          margin: 0;
+          padding: 0;
+        }
+
+        .resume-wrapper {
+          padding: 0 !important;
+          display: block;
+        }
+
+        .resume-container {
+          box-shadow: none !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: white !important;
+        }
+
+        .no-print {
+          display: none !important;
+        }
+
+        /* Force content to show */
+        .section,
+        .experience-item,
+        .project-item {
+          break-inside: avoid;
+          page-break-inside: avoid;
+          visibility: visible !important;
+          display: block !important;
+        }
+
+        .projects-grid {
+          display: grid !important;
+          grid-template-columns: 1fr 1fr !important;
+        }
+
+        /* Ensure all content is visible */
+        * {
+          visibility: visible !important;
+        }
+      }
+
+      .download-section {
+        text-align: center;
+        padding: 25px;
+        background: #475569;
+      }
+
+      .btn-download {
+        font-family: Arial, sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        padding: 14px 35px;
+        background: linear-gradient(135deg, #1a365d, #2c5282);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .btn-download:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(26, 54, 93, 0.5);
+      }
+
+      .btn-download:active {
+        transform: translateY(-1px);
+      }
+
+      .btn-download:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, #059669, #047857);
+      }
+
+      .btn-secondary:hover {
+        box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
+      }
+      .project-section{
+        padding-top: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="resume-wrapper">
+      <div class="resume-container" id="resume">
+        <!-- HEADER -->
+        <header class="header">
+          <h1>Khawar Saleem Qamar</h1>
+          <div class="job-title">
+            Full Stack Developer | MERN Stack Specialist
+          </div>
+          <div class="contact-info">
+            <span>Multan, Pakistan</span>
+            <span class="contact-divider">|</span>
+            <span>+923079624461</span>
+            <span class="contact-divider">|</span>
+            <span>khawarsaleemqamar@gmail.com</span>
+          </div>
+        </header>
+
+        <!-- PROFESSIONAL SUMMARY -->
+        <section class="section">
+          <h2 class="section-title">Professional Summary</h2>
+          <p class="summary-text">
+            Full Stack Engineer with a strong foundation in <strong>JavaScript-based ecosystems</strong>, specializing in 
+<strong>MongoDB, Express, React, and Node.js</strong>. Hands-on experience delivering 
+<strong>end-to-end software solutions</strong> across diverse domains, including enterprise platforms, 
+healthcare systems, campaign management tools, data-centric monitoring applications, and mobile backend services. 
+Adept at transforming business requirements into <strong>scalable APIs</strong>, 
+<strong>secure authentication workflows</strong>, and <strong>highly responsive front-end experiences</strong>. 
+Known for writing <strong>clean, maintainable code</strong>, integrating 
+<strong>modern payment systems</strong>, and contributing effectively within 
+<strong>fast-paced, agile teams</strong>.
+
+          </p>
+        </section>
+
+        <!-- TECHNICAL SKILLS -->
+        <section class="section">
+          <h2 class="section-title">Technical Skills</h2>
+          <table class="skills-table">
+            <tr>
+              <td>
+                <span class="skill-category-title">Frontend: </span>
+                <span class="skill-list"
+                  >React.js, Next.js, Vite, JavaScript (ES6+), TypeScript,
+                  HTML5, CSS3, Tailwind CSS, Redux, Context API</span
+                >
+              </td>
+              <td>
+                <span class="skill-category-title">Backend: </span>
+                <span class="skill-list"
+                  >Node.js, Express.js, RESTful APIs, JWT Authentication, OAuth
+                  2.0, WebSocket, Socket.io</span
+                >
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span class="skill-category-title">Database: </span>
+                <span class="skill-list"
+                  >MongoDB, Mongoose ODM, Firebase Firestore, Firebase Realtime
+                  Database</span
+                >
+              </td>
+              <td>
+                <span class="skill-category-title">Cloud and DevOps: </span>
+                <span class="skill-list"
+                  >AWS (EC2, S3), Firebase, Netlify, Vercel</span
+                >
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span class="skill-category-title">Tools: </span>
+                <span class="skill-list"
+                  >Git, GitHub, VS Code, Postman, npm, Yarn</span
+                >
+              </td>
+              <td>
+                <span class="skill-category-title">Integrations: </span>
+                <span class="skill-list"
+                  >Stripe, PayPal, Google Maps API, Push Notifications,
+                  Cloudinary</span
+                >
+              </td>
+            </tr>
+          </table>
+        </section>
+
+        <!-- PROFESSIONAL EXPERIENCE -->
+        <section class="section">
+          <h2 class="section-title">Professional Experience</h2>
+          <div class="experience-item">
+            <div class="experience-header">
+              <div class="experience-left">
+                <span class="experience-title">Full Stack Developer</span>
+                <span style="color: #666"> | </span>
+                <span class="experience-company">Softhrive</span>
+                <span style="color: #666"> | </span>
+                <span class="experience-location">Multan, Pakistan</span>
+              </div>
+            </div>
+            <ul class="experience-list">
+              <li>
+                Architected and developed 15+ full-stack web applications,
+                websites, and backend systems using MERN stack
+              </li>
+              <li>
+                Led frontend development implementing React.js with Vite,
+                optimizing performance through code splitting and lazy loading
+              </li>
+              <li>
+                Designed and implemented scalable RESTful APIs with Node.js and
+                Express.js ensuring high availability
+              </li>
+              <li>
+                Integrated secure authentication using JWT tokens, OAuth 2.0,
+                and Firebase Auth for sensitive applications
+              </li>
+              <li>
+                Developed real-time features using Socket.io for live
+                notifications, chat systems, and progress tracking
+              </li>
+              <li>
+                Implemented payment integrations with Stripe and PayPal for
+                secure transaction handling
+              </li>
+              <li>
+                Deployed applications on AWS (EC2, S3) and Firebase for scalable
+                cloud infrastructure
+              </li>
+            </ul>
+          </div>
+          <div class="experience-item">
+            <div class="experience-header">
+              <div class="experience-left">
+                <span class="experience-title">Full Stack Developer</span>
+                <span style="color: #666"> | </span>
+                <span class="experience-company">Vtron Tech</span>
+                <span style="color: #666"> | </span>
+                <span class="experience-location">Multan, Pakistan</span>
+              </div>
+            </div>
+            <ul class="experience-list">
+              <li>
+                Built and maintained full-stack web applications using the MERN stack,
+                handling end-to-end feature development from frontend to backend
+              </li>
+              <li>
+                Developed responsive and interactive user interfaces with React.js using
+                component-based architecture and reusable design patterns
+              </li>
+              <li>
+                Designed and integrated RESTful APIs with Node.js and Express.js to enable
+                seamless frontend–backend communication
+              </li>
+              <li>
+                Structured and managed MongoDB databases, writing efficient schemas and
+                queries for scalable data handling
+              </li>
+            </ul>
+          </div>
+          <div class="experience-item">
+            <div class="experience-header">
+              <div class="experience-left">
+                <span class="experience-title">Full Stack Developer</span>
+                <span style="color: #666"> | </span>
+                <span class="experience-company">Freelance (Fiverr & Upwork)</span>
+                <span style="color: #666"> | </span>
+                <span class="experience-location">Remote</span>
+              </div>
+            </div>
+            <ul class="experience-list">
+              <li>
+                Delivered end-to-end full stack solutions for international clients using
+                the MERN stack, covering both frontend interfaces and backend services
+              </li>
+              <li>
+                Designed and implemented scalable APIs, authentication flows, and database
+                structures tailored to client-specific business requirements
+              </li>
+            </ul>
+          </div>
+
+        </section>
+
+        <!-- KEY PROJECTS -->
+        <section class="section project-section">
+          <h2 class="section-title">Key Projects</h2>
+
+          <!-- FULL STACK WEB APPLICATIONS -->
+          <div class="project-category">Full Stack Web Applications</div>
+          <div class="projects-grid">
+            <div class="project-item">
+              <div class="project-name">
+                VeadooPortal - Service Booking Platform
+              </div>
+              <div class="project-tech">
+                React.js, Node.js, Express.js, MongoDB, Socket.io, Stripe
+              </div>
+              <ul class="project-list">
+                <li>
+                  B2B marketplace with real-time availability and instant
+                  booking confirmation
+                </li>
+                <li>
+                  Integrated Stripe payment gateway with PCI-compliant security
+                </li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">
+                BMessentia - Learning Management System
+              </div>
+              <div class="project-tech">
+                React.js, Firebase (Auth, Firestore, Storage), Stripe
+              </div>
+              <ul class="project-list">
+                <li>
+                  Complete LMS with courses, video streaming, quizzes, and
+                  progress tracking
+                </li>
+                <li>
+                  Premium subscription system with recurring Stripe payments
+                </li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">GoAbbu - Flight Booking Platform</div>
+              <div class="project-tech">
+                React.js, Vite, Node.js, Express.js, MongoDB
+              </div>
+              <ul class="project-list">
+                <li>
+                  Flight search with one-way, round-trip, and multi-city options
+                </li>
+                <li>Multiple airline API integrations for price comparison</li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">Sugudeni - E-Commerce Platform</div>
+              <div class="project-tech">
+                React.js, Vite, Tailwind CSS, Node.js, MongoDB, JWT
+              </div>
+              <ul class="project-list">
+                <li>
+                  Complete e-commerce with dynamic catalog and secure checkout
+                </li>
+                <li>Admin panel for inventory and order management</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- WEBSITE PROJECTS -->
+          <div class="project-category">Website Development Projects</div>
+          <div class="projects-grid">
+            <div class="project-item">
+              <div class="project-name">
+                Nomad Nurse - Healthcare Staffing Platform
+              </div>
+              <div class="project-tech">
+                React.js, Node.js, Express.js, MongoDB, JWT
+              </div>
+              <ul class="project-list">
+                <li>Platform connecting dental practices to locum nurses</li>
+                <li>Job search, profile management, and booking system</li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">
+                ImFact - Campaign Management Platform
+              </div>
+              <div class="project-tech">
+                React.js, Node.js, Express.js, MongoDB, AWS
+              </div>
+              <ul class="project-list">
+                <li>
+                  Connects business owners with influencers for brand campaigns
+                </li>
+                <li>Targeted campaign creation and partnership management</li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">
+                Fasal360 - Agricultural Monitoring Platform
+              </div>
+              <div class="project-tech">
+                React.js, Node.js, Express.js, MongoDB, Weather API
+              </div>
+              <ul class="project-list">
+                <li>
+                  Seed checking, weather forecasting, and pest detection tools
+                </li>
+                <li>
+                  Agricultural news feed and integrated farming product store
+                </li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">
+                Repairoo - Home Services Marketplace
+              </div>
+              <div class="project-tech">
+                MERN Stack, Socket.io, Geolocation API
+              </div>
+              <ul class="project-list">
+                <li>Job posting with real-time bidding and expert matching</li>
+                <li>Admin dashboard with moderation and analytics</li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">FoodBuddy - Food Delivery Platform</div>
+              <div class="project-tech">
+                React.js, Vite, Node.js, MongoDB, Google Maps API
+              </div>
+              <ul class="project-list">
+                <li>
+                  Restaurant browsing, menu management, and cart functionality
+                </li>
+                <li>Real-time order tracking with Google Maps integration</li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">
+                Frenzone - Social Networking Platform
+              </div>
+              <div class="project-tech">MERN Stack, Socket.io, Cloudinary</div>
+              <ul class="project-list">
+                <li>
+                  Social platform with profiles, posts, likes, comments, follows
+                </li>
+                <li>Real-time notifications and live feed updates</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- BACKEND DEVELOPMENT -->
+          <div class="project-category">
+            Backend Development for Mobile Applications
+          </div>
+          <div class="projects-grid">
+            <div class="project-item">
+              <div class="project-name">Challenge - Competitive Gaming App</div>
+              <div class="project-tech">
+                Node.js, Express.js, MongoDB, RESTful APIs
+              </div>
+              <ul class="project-list">
+                <li>Team tournaments with 4/8/12-week competitions</li>
+                <li>Automated winner calculation and progress tracking</li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">MasCare - Nanny Booking App</div>
+              <div class="project-tech">
+                Node.js, Express.js, MongoDB, Firebase
+              </div>
+              <ul class="project-list">
+                <li>Profile management and availability checking APIs</li>
+                <li>Booking scheduling with verification system</li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">
+                Greening - Tree Health Monitoring App
+              </div>
+              <div class="project-tech">
+                Node.js, Express.js, MongoDB, Firebase
+              </div>
+              <ul class="project-list">
+                <li>
+                  Real-time sensor data processing for tree health analysis
+                </li>
+                <li>Disease detection and expert solution recommendations</li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">
+                SoveIt - Service Provider Marketplace
+              </div>
+              <div class="project-tech">
+                Node.js, Express.js, MongoDB, Firebase, Stripe
+              </div>
+              <ul class="project-list">
+                <li>
+                  Service provider matching algorithms and booking management
+                </li>
+                <li>Real-time notifications and secure payment processing</li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">Ambit - Sports Event Platform</div>
+              <div class="project-tech">
+                Node.js, Express.js, MongoDB, Firebase, Socket.io, Stripe
+              </div>
+              <ul class="project-list">
+                <li>Event management, leaderboards, and real-time chat</li>
+                <li>
+                  Social features, score verification, and premium features
+                </li>
+              </ul>
+            </div>
+
+            <div class="project-item">
+              <div class="project-name">
+                Frenzone - Social Networking Backend
+              </div>
+              <div class="project-tech">
+                Node.js, Express.js, MongoDB, Socket.io, Cloudinary
+              </div>
+              <ul class="project-list">
+                <li>Backend APIs for profiles, posts, and follow system</li>
+                <li>Real-time notifications and media upload handling</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- EDUCATION -->
+        <section class="section">
+          <h2 class="section-title">Education</h2>
+          <table class="education-table">
+            <tr>
+              <td class="education-left">
+                <div class="degree">
+                  Bachelor of Science in Computer Science (BSCS)
+                </div>
+              </td>
+              <td class="education-right">
+                <div class="gpa">CGPA: 3.7 / 4.0</div>
+              </td>
+            </tr>
+          </table>
+        </section>
+      </div>
+    </div>
+
+    <!-- DOWNLOAD BUTTONS -->
+    <div class="download-section no-print">
+      <button class="btn-download" id="downloadBtn" onclick="downloadPDF()">
+        📥 Download Resume as PDF
+      </button>
+      <button class="btn-download btn-secondary" onclick="window.print()">
+        🖨️ Print or Save as PDF
+      </button>
+    </div>
+
+    <script>
+      async function downloadPDF() {
+        const element = document.getElementById("resume");
+        const btn = document.getElementById("downloadBtn");
+        const originalText = btn.innerHTML;
+
+        btn.innerHTML = "⏳ Generating PDF...";
+        btn.disabled = true;
+
+        // Scroll to top to ensure proper capture
+        window.scrollTo(0, 0);
+
+        try {
+          const opt = {
+            margin: [0.3, -0.09, 0, 0],
+            filename: "Khawar_Saleem_Qamar_Full_Stack_Developer_Resume.pdf",
+            image: {
+              type: "jpeg",
+              quality: 0.98,
+            },
+            html2canvas: {
+              scale: 2,
+              useCORS: true,
+              logging: false,
+              letterRendering: true,
+              allowTaint: false,
+              backgroundColor: "#ffffff",
+              scrollY: 0,
+              scrollX: 0,
+              windowHeight: element.scrollHeight + 100,
+            },
+            jsPDF: {
+              unit: "in",
+              format: "letter",
+              orientation: "portrait",
+              compress: true,
+            },
+            pagebreak: {
+              mode: ["avoid-all", "css", "legacy"],
+              avoid: [
+                ".section",
+                ".experience-item",
+                ".project-item",
+                ".project-category",
+              ],
+            },
+          };
+
+          await html2pdf().set(opt).from(element).save();
+
+          btn.innerHTML = "✅ Downloaded Successfully!";
+          btn.style.background = "linear-gradient(135deg, #059669, #047857)";
+
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = "linear-gradient(135deg, #1a365d, #2c5282)";
+            btn.disabled = false;
+          }, 2500);
+        } catch (error) {
+          console.error("PDF Generation Error:", error);
+          btn.innerHTML = "❌ Error - Use Print Button";
+          btn.style.background = "linear-gradient(135deg, #dc2626, #991b1b)";
+
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = "linear-gradient(135deg, #1a365d, #2c5282)";
+            btn.disabled = false;
+          }, 3000);
+
+          alert(
+            "PDF download failed. Please use the 'Print or Save as PDF' button for best results.",
+          );
+        }
+      }
+
+      // Enhanced print support
+      window.addEventListener("beforeprint", function () {
+        document.body.style.background = "white";
+      });
+
+      window.addEventListener("afterprint", function () {
+        document.body.style.background = "#64748b";
+      });
+
+      // Ensure page is loaded before allowing PDF generation
+      window.addEventListener("load", function () {
+        console.log("Resume loaded and ready for PDF generation");
+      });
+    </script>
+  </body>
+</html>
