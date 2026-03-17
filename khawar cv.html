@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Khawar Saleem Qamar - Full Stack Developer Resume</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
     <style>
       * {
         box-sizing: border-box;
@@ -827,86 +825,50 @@ Known for writing <strong>clean, maintainable code</strong>, integrating
     <!-- DOWNLOAD BUTTONS -->
     <div class="download-section no-print">
       <button class="btn-download" id="downloadBtn" onclick="downloadPDF()">
-        📥 Download Resume as PDF
+        Download Resume as PDF
       </button>
       <button class="btn-download btn-secondary" onclick="window.print()">
-        🖨️ Print or Save as PDF
+        Print or Save as PDF
       </button>
     </div>
 
     <script>
       async function downloadPDF() {
-        const element = document.getElementById("resume");
         const btn = document.getElementById("downloadBtn");
         const originalText = btn.innerHTML;
 
-        btn.innerHTML = "⏳ Generating PDF...";
+        btn.innerHTML = "Generating PDF...";
         btn.disabled = true;
 
-        // Scroll to top to ensure proper capture
-        window.scrollTo(0, 0);
-
         try {
-          const opt = {
-            margin: [0.3, -0.09, 0, 0],
-            filename: "Khawar_Saleem_Qamar_Full_Stack_Developer_Resume.pdf",
-            image: {
-              type: "jpeg",
-              quality: 0.98,
-            },
-            html2canvas: {
-              scale: 2,
-              useCORS: true,
-              logging: false,
-              letterRendering: true,
-              allowTaint: false,
-              backgroundColor: "#ffffff",
-              scrollY: 0,
-              scrollX: 0,
-              windowHeight: element.scrollHeight + 100,
-            },
-            jsPDF: {
-              unit: "in",
-              format: "letter",
-              orientation: "portrait",
-              compress: true,
-            },
-            pagebreak: {
-              mode: ["avoid-all", "css", "legacy"],
-              avoid: [
-                ".section",
-                ".experience-item",
-                ".project-item",
-                ".project-category",
-              ],
-            },
-          };
+          const response = await fetch("/resume.pdf");
+          if (!response.ok) {
+            throw new Error("PDF generation failed");
+          }
 
-          await html2pdf().set(opt).from(element).save();
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "Khawar_Saleem_Qamar_Resume.pdf";
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url);
 
-          btn.innerHTML = "✅ Downloaded Successfully!";
+          btn.innerHTML = "Downloaded Successfully!";
           btn.style.background = "linear-gradient(135deg, #059669, #047857)";
-
-          setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.style.background = "linear-gradient(135deg, #1a365d, #2c5282)";
-            btn.disabled = false;
-          }, 2500);
         } catch (error) {
           console.error("PDF Generation Error:", error);
-          btn.innerHTML = "❌ Error - Use Print Button";
+          btn.innerHTML = "Error - Use Print Button";
           btn.style.background = "linear-gradient(135deg, #dc2626, #991b1b)";
-
-          setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.style.background = "linear-gradient(135deg, #1a365d, #2c5282)";
-            btn.disabled = false;
-          }, 3000);
-
-          alert(
-            "PDF download failed. Please use the 'Print or Save as PDF' button for best results.",
-          );
         }
+
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.style.background = "linear-gradient(135deg, #1a365d, #2c5282)";
+          btn.disabled = false;
+        }, 2500);
       }
 
       // Enhanced print support
