@@ -46,4 +46,5 @@ app.get("/resume.pdf", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Resume server running at http://localhost:${PORT}`);
+  console.log(`Download resume at http://localhost:${PORT}/resume.pdf`);
 });
