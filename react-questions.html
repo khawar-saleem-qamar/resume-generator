@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Interview Questions - 100 Questions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Sora:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #0f172a;
+        --muted: #475569;
+        --accent: #0ea5e9;
+        --accent-dark: #0369a1;
+        --paper: #f8fafc;
+        --card: #ffffff;
+        --chip: #e2e8f0;
+        --shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Sora", "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top left, #e0f2fe 0%, #f8fafc 45%, #f1f5f9 100%);
+        color: var(--ink);
+        line-height: 1.5;
+      }
+
+      .page-shell {
+        min-height: 100vh;
+        padding: 40px 20px 80px;
+      }
+
+      .sheet {
+        max-width: 1080px;
+        margin: 0 auto;
+        background: var(--card);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .hero {
+        padding: 44px 56px 28px;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #0f172a 100%);
+        color: #f8fafc;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        right: -120px;
+        top: -140px;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(14, 165, 233, 0.45), rgba(14, 165, 233, 0));
+      }
+
+      .hero h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 34px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .hero p {
+        color: #cbd5f5;
+        max-width: 640px;
+      }
+
+      .hero-meta {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .hero-pill {
+        background: rgba(15, 23, 42, 0.45);
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: 12px;
+        letter-spacing: 0.3px;
+      }
+
+      .content {
+        padding: 32px 56px 52px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+
+      .stat-card {
+        background: var(--paper);
+        border-radius: 14px;
+        padding: 16px 18px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .stat-card h3 {
+        font-size: 13px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+      }
+
+      .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--ink);
+      }
+
+      .hero-graphic {
+        height: 140px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #e0f2fe 0%, #f1f5f9 45%, #e2e8f0 100%);
+        border: 1px solid #e2e8f0;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 26px;
+      }
+
+      .creator-badge {
+        position: absolute;
+        right: 18px;
+        bottom: 16px;
+        background: rgba(15, 23, 42, 0.9);
+        color: #f8fafc;
+        padding: 10px 14px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.25);
+      }
+
+      .creator-badge svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .hero-graphic .ring {
+        position: absolute;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        border: 18px solid rgba(14, 165, 233, 0.18);
+        top: -60px;
+        right: 40px;
+      }
+
+      .hero-graphic .pulse {
+        position: absolute;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(14, 165, 233, 0.25), rgba(14, 165, 233, 0));
+        left: -40px;
+        top: -90px;
+      }
+
+      .hero-graphic .bars {
+        position: absolute;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+      }
+
+      .hero-graphic .bar {
+        width: 16px;
+        border-radius: 6px;
+        background: linear-gradient(180deg, #0ea5e9, #0284c7);
+        box-shadow: 0 10px 18px rgba(14, 165, 233, 0.25);
+      }
+
+      .hero-graphic .bar:nth-child(1) { height: 42px; }
+      .hero-graphic .bar:nth-child(2) { height: 70px; }
+      .hero-graphic .bar:nth-child(3) { height: 54px; }
+      .hero-graphic .bar:nth-child(4) { height: 82px; }
+      .hero-graphic .bar:nth-child(5) { height: 48px; }
+
+      .section {
+        margin-top: 30px;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .section-count {
+        background: var(--chip);
+        color: var(--muted);
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+      }
+
+      .questions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 14px;
+      }
+
+      .question-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 16px 16px 18px;
+        background: #ffffff;
+        min-height: 120px;
+        position: relative;
+      }
+
+      .question-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .question-number {
+        font-weight: 600;
+        color: var(--accent-dark);
+      }
+
+      .difficulty-badge {
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        background: #e0f2fe;
+        color: #0369a1;
+      }
+
+      .difficulty-Intermediate {
+        background: #fef3c7;
+        color: #b45309;
+      }
+
+      .difficulty-Senior {
+        background: #ffe4e6;
+        color: #be123c;
+      }
+
+      .difficulty-Expert {
+        background: #ede9fe;
+        color: #6d28d9;
+      }
+
+      .question-text {
+        font-size: 14px;
+        color: var(--ink);
+      }
+
+      .download-bar {
+        margin-top: 36px;
+        padding: 24px 56px 40px;
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        background: #0f172a;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 10px;
+        padding: 12px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        color: #ffffff;
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 12px 24px rgba(14, 165, 233, 0.25);
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 30px rgba(14, 165, 233, 0.35);
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        box-shadow: 0 12px 24px rgba(34, 197, 94, 0.25);
+      }
+
+      .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .no-print {
+        display: block;
+      }
+
+      @media (max-width: 900px) {
+        .content,
+        .hero,
+        .download-bar {
+          padding-left: 24px;
+          padding-right: 24px;
+        }
+
+        .hero h1 {
+          font-size: 28px;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media print {
+        @page {
+          size: letter;
+          margin: 0.4in 0 0.6in;
+        }
+
+        @page:first {
+          margin: 0;
+        }
+
+        body {
+          background: #ffffff !important;
+        }
+
+        .page-shell {
+          padding: 0;
+        }
+
+        .sheet {
+          box-shadow: none;
+          border-radius: 0;
+          max-width: 100%;
+        }
+
+        .hero {
+          border-radius: 0;
+        }
+
+        .questions-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        .question-card,
+        .section {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        .no-print {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="sheet" id="questionSheet">
+        <header class="hero">
+          <h1>React Interview Questions</h1>
+          <p>
+            A curated set of 100 React questions organized into four mastery
+            tracks, built for structured practice and confident interviews.
+          </p>
+          <div class="hero-meta">
+            <span class="hero-pill">Total: <span id="totalCount">0</span> questions</span>
+            <span class="hero-pill">Sections: 4</span>
+            <span class="hero-pill">Updated: March 20, 2026</span>
+          </div>
+        </header>
+
+        <main class="content">
+          <div class="stats-grid" id="statsGrid"></div>
+          <div class="hero-graphic">
+            <div class="pulse"></div>
+            <div class="ring"></div>
+            <div class="bars">
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+            </div>
+            <a
+              class="creator-badge"
+              href="https://www.linkedin.com/in/khawar-saleem-qamar"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg viewBox="0 0 24 24" fill="#0a66c2" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM0.2 8h4.6v15H0.2V8zM7.7 8h4.4v2.1h.1c.6-1.1 2.1-2.3 4.4-2.3 4.7 0 5.6 3.1 5.6 7.1V23h-4.6v-6.7c0-1.6 0-3.7-2.2-3.7-2.2 0-2.6 1.8-2.6 3.6V23H7.7V8z"/>
+              </svg>
+              Created by khawar-saleem-qamar
+            </a>
+          </div>
+          <div id="sections"></div>
+        </main>
+      </div>
+
+      <div class="download-bar no-print">
+        <button class="btn" id="downloadBtn" onclick="downloadQuestionsPDF()">
+          Download Questions as PDF
+        </button>
+        <button class="btn btn-secondary" onclick="window.print()">
+          Print or Save as PDF
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const CATEGORY_ORDER = [
+        "Fundamentals",
+        "Hooks & Logic",
+        "Architecture & Performance",
+        "Deep Dives",
+      ];
+
+      function buildStats(questions) {
+        const statsGrid = document.getElementById("statsGrid");
+        statsGrid.innerHTML = "";
+
+        CATEGORY_ORDER.forEach((category) => {
+          const count = questions.filter((q) => q.category === category).length;
+          const card = document.createElement("div");
+          card.className = "stat-card";
+          card.innerHTML = `
+            <h3>${category}</h3>
+            <div class="stat-value">${count}</div>
+          `;
+          statsGrid.appendChild(card);
+        });
+      }
+
+      function buildSections(questions) {
+        const sections = document.getElementById("sections");
+        sections.innerHTML = "";
+
+        CATEGORY_ORDER.forEach((category) => {
+          const items = questions.filter((q) => q.category === category);
+          const section = document.createElement("section");
+          section.className = "section";
+
+          const header = document.createElement("div");
+          header.className = "section-head";
+          header.innerHTML = `
+            <div class="section-title">${category}</div>
+            <div class="section-count">${items.length} questions</div>
+          `;
+
+          const grid = document.createElement("div");
+          grid.className = "questions-grid";
+
+          items.forEach((item) => {
+            const card = document.createElement("article");
+            card.className = "question-card";
+            const difficultyClass = `difficulty-${item.difficulty}`;
+            card.innerHTML = `
+              <div class="question-meta">
+                <span class="question-number">#${item.id}</span>
+                <span class="difficulty-badge ${difficultyClass}">${item.difficulty}</span>
+              </div>
+              <div class="question-text">${item.question}</div>
+            `;
+            grid.appendChild(card);
+          });
+
+          section.appendChild(header);
+          section.appendChild(grid);
+          sections.appendChild(section);
+        });
+      }
+
+      async function loadQuestions() {
+        try {
+          const response = await fetch("react-question.json", { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error("Failed to load questions");
+          }
+          const data = await response.json();
+          const questions = data.react_interview_questions || [];
+
+          document.getElementById("totalCount").textContent = questions.length;
+          buildStats(questions);
+          buildSections(questions);
+        } catch (error) {
+          console.error("Load Error:", error);
+          const sections = document.getElementById("sections");
+          sections.innerHTML = `
+            <div style="padding: 12px 0; color: #b91c1c; font-weight: 600;">
+              Unable to load questions. Please open this page via
+              <code>http://localhost:3000/react-questions.html</code> and refresh.
+            </div>
+          `;
+        }
+      }
+
+      async function downloadQuestionsPDF() {
+        const btn = document.getElementById("downloadBtn");
+        const originalText = btn.textContent;
+        btn.textContent = "Generating PDF...";
+        btn.disabled = true;
+
+        try {
+          const response = await fetch("/react-questions.pdf");
+          if (!response.ok) {
+            throw new Error("PDF generation failed");
+          }
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "React_Interview_Questions.pdf";
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url);
+
+          btn.textContent = "Downloaded Successfully";
+          btn.style.background = "linear-gradient(135deg, #22c55e, #16a34a)";
+        } catch (error) {
+          console.error("PDF Generation Error:", error);
+          btn.textContent = "Error - Use Print Button";
+          btn.style.background = "linear-gradient(135deg, #dc2626, #991b1b)";
+        }
+
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.background = "linear-gradient(135deg, #0ea5e9, #0284c7)";
+          btn.disabled = false;
+        }, 2500);
+      }
+
+      window.addEventListener("load", loadQuestions);
+    </script>
+  </body>
+</html>
