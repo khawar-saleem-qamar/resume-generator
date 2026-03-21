@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Node.js Event Loop - Interview Questions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Serif+Display&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #111827;
+        --muted: #6b7280;
+        --accent: #f97316;
+        --accent-dark: #c2410c;
+        --accent-soft: rgba(249, 115, 22, 0.12);
+        --paper: #fffaf5;
+        --card: #ffffff;
+        --chip: #e5e7eb;
+        --shadow: 0 25px 50px rgba(17, 24, 39, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top right, #fff1e6 0%, #f8fafc 45%, #f3f4f6 100%);
+        color: var(--ink);
+        line-height: 1.55;
+      }
+
+      .page-shell {
+        padding: 40px 20px 80px;
+      }
+
+      .sheet {
+        max-width: 8.5in;
+        margin: 0 auto;
+      }
+
+      .page {
+        background: var(--paper);
+        box-shadow: var(--shadow);
+        padding: 0.75in 0.85in 0.8in;
+        min-height: 11in;
+        position: relative;
+        margin-bottom: 24px;
+        box-sizing: border-box;
+      }
+
+      .question-page::before {
+        content: "";
+        position: absolute;
+        top: 0.6in;
+        left: 0.35in;
+        width: 6px;
+        height: calc(100% - 1.3in);
+        border-radius: 999px;
+        background: linear-gradient(180deg, #f97316, #ea580c);
+        opacity: 0.9;
+      }
+
+      .cover {
+        padding: 0;
+        background: #0f4c52;
+        color: #fdf2e6;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .cover-top {
+        padding: 0.9in 0.95in 0.75in;
+        background: #0f4c52;
+        position: relative;
+        padding-bottom: 0.5in;
+      }
+
+      .cover-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #f5f5f5;
+        margin-bottom: 24px;
+      }
+
+      .cover-brand .dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        background: #f8fbff;
+        display: inline-block;
+      }
+
+      .cover h1 {
+        font-family: "DM Serif Display", serif;
+        font-size: 38px;
+        line-height: 1.15;
+        margin-bottom: 14px;
+        max-width: 560px;
+      }
+
+      .cover h1 .accent {
+        color: #f6b352;
+      }
+
+      .cover-meta {
+        margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .pill {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: 12px;
+        letter-spacing: 0.3px;
+      }
+
+      .badge-seal {
+        position: absolute;
+        right: 30px;
+        top: 24px;
+        width: 86px;
+        height: 86px;
+        border-radius: 50%;
+        background: #f6b352;
+        border: 6px solid #ffffff;
+        display: grid;
+        place-items: center;
+        color: #0f4c52;
+        font-size: 10px;
+        font-weight: 700;
+        text-align: center;
+        padding: 8px;
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .cover-middle {
+        /* background: #fdf2e6; */
+        padding: 0.3in 0.95in 0.2in;
+        position: relative;
+        display: block;
+        flex: 1;
+      }
+
+      .cover-image {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .cover-bottom {
+        background: #0f4c52;
+        padding: 0.25in 0.95in 0.35in;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        color: #f6b352;
+        font-weight: 700;
+        letter-spacing: 1px;
+        font-size: 13px;
+      }
+
+      .swipe-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(246, 179, 82, 0.15);
+        border: 1px solid rgba(246, 179, 82, 0.5);
+        padding: 10px 16px;
+        border-radius: 999px;
+      }
+
+      .cover-bottom .arrow {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #f6b352;
+        color: #0f4c52;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+      }
+
+      .creator-badge {
+        position: absolute;
+        right: 18px;
+        bottom: 16px;
+        background: rgba(17, 24, 39, 0.92);
+        color: #fef2e9;
+        padding: 10px 14px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 12px 20px rgba(17, 24, 39, 0.25);
+      }
+
+      .creator-badge svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .question-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      .topic-tag {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--muted);
+      }
+
+      .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      .question-number {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent-dark);
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+      }
+
+      .question-badge {
+        background: #111827;
+        color: #fef3c7;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+
+      .question-block {
+        background: #111827;
+        color: #fef3c7;
+        padding: 20px 22px;
+        border-radius: 20px;
+        border: 1px solid rgba(249, 115, 22, 0.4);
+        box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.08);
+        margin-bottom: 20px;
+      }
+
+      .question-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .question-block .highlight {
+        background: rgba(249, 115, 22, 0.2);
+        color: #fdba74;
+        padding: 0 4px;
+        border-radius: 6px;
+        font-weight: 700;
+      }
+
+      .section-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--accent-dark);
+        margin-bottom: 8px;
+      }
+
+      .approach-section {
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 18px 20px;
+        border: 1px solid rgba(249, 115, 22, 0.18);
+        margin-bottom: 18px;
+      }
+
+      .approach-text {
+        font-size: 15.5px;
+        color: #1f2937;
+      }
+
+      .answer-section {
+        padding: 8px 6px 2px;
+        margin-bottom: 18px;
+      }
+
+      .answer-content {
+        font-size: 15.5px;
+        color: #1f2937;
+      }
+
+      .answer-content p {
+        margin-bottom: 10px;
+      }
+
+      .answer-content ul,
+      .answer-content ol {
+        margin: 0 0 10px 18px;
+      }
+
+      .answer-content li {
+        margin-bottom: 6px;
+      }
+
+      .highlight {
+        background: var(--accent-soft);
+        color: var(--accent-dark);
+        padding: 0 4px;
+        border-radius: 6px;
+        font-weight: 600;
+      }
+
+      .divider-line {
+        height: 1px;
+        background: #e5e7eb;
+        margin: 18px 0;
+      }
+
+      pre {
+        background: #111827;
+        color: #fef3c7;
+        padding: 18px;
+        border-radius: 18px;
+        font-size: 13.5px;
+        line-height: 1.5;
+        overflow: hidden;
+        border: 1px solid rgba(249, 115, 22, 0.25);
+      }
+
+      code .tok-keyword { color: #fb7185; font-weight: 600; }
+      code .tok-string { color: #fde68a; }
+      code .tok-number { color: #93c5fd; }
+      code .tok-comment { color: #94a3b8; font-style: italic; }
+      code .tok-fn { color: #67e8f9; }
+      code .tok-const { color: #a7f3d0; }
+
+      .code-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--accent-dark);
+        margin-bottom: 8px;
+      }
+
+      .code-text {
+        font-size: 14px;
+        color: #1f2937;
+        line-height: 1.6;
+        padding: 0 4px 6px;
+      }
+
+      .code-text p {
+        margin-bottom: 8px;
+      }
+
+      .end-page {
+        display: grid;
+        /* grid-template-columns: 1.05fr 1fr; */
+        gap: 24px;
+        align-items: center;
+      }
+
+      .end-card {
+        background: #ffffff;
+        border-radius: 22px;
+        padding: 26px;
+        border: 1px solid rgba(249, 115, 22, 0.2);
+        box-shadow: 0 18px 30px rgba(17, 24, 39, 0.08);
+      }
+
+      .end-title {
+        font-family: "DM Serif Display", serif;
+        font-size: 30px;
+        margin-bottom: 10px;
+        color: #111827;
+      }
+
+      .end-subtitle {
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 18px;
+      }
+
+      .end-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--accent-soft);
+        color: var(--accent-dark);
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 14px;
+      }
+
+      .author {
+        font-size: 15px;
+        font-weight: 700;
+        color: #111827;
+      }
+
+      .author-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+        font-size: 13px;
+        color: #0f172a;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .author-link svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .benefits {
+        margin-top: 14px;
+        color: #1f2937;
+        font-size: 14px;
+      }
+
+      .benefits ul {
+        margin: 10px 0 0 18px;
+      }
+
+      .benefits li {
+        margin-bottom: 6px;
+      }
+
+      .icon-card {
+        width: 100%;
+        height: 100%;
+        min-height: 300px;
+        border-radius: 24px;
+        background: linear-gradient(135deg, #fff1e6, #fdf2e6);
+        border: 1px solid rgba(249, 115, 22, 0.2);
+        display: grid;
+        place-items: center;
+      }
+
+      .icon-wrap {
+        width: 140px;
+        height: 140px;
+        border-radius: 32px;
+        background: #ffffff;
+        border: 1px solid rgba(249, 115, 22, 0.25);
+        display: grid;
+        place-items: center;
+        box-shadow: 0 18px 30px rgba(17, 24, 39, 0.12);
+      }
+
+      .icon-wrap svg {
+        width: 70px;
+        height: 70px;
+      }
+
+      .download-bar {
+        margin-top: 36px;
+        padding: 24px;
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        background: #111827;
+        border-radius: 16px;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 10px;
+        padding: 12px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        color: #ffffff;
+        background: linear-gradient(135deg, #f97316, #ea580c);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 12px 24px rgba(249, 115, 22, 0.25);
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        box-shadow: 0 12px 24px rgba(14, 165, 233, 0.25);
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 30px rgba(249, 115, 22, 0.35);
+      }
+
+      .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .no-print {
+        display: block;
+      }
+
+      @media (max-width: 900px) {
+        .page-shell {
+          padding: 20px;
+        }
+
+        .page {
+          padding: 0.6in 0.6in 0.65in;
+        }
+
+        .end-page {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media print {
+        @page {
+          size: letter;
+          margin: 0;
+        }
+
+        body {
+          background: #fff1e6 !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .page-shell {
+          padding: 0;
+        }
+
+        .page {
+          margin: 0;
+          box-shadow: none;
+          height: 11in;
+          min-height: 11in;
+          break-after: page;
+          page-break-after: always;
+        }
+
+        .cover {
+          height: 11in;
+        }
+
+        .cover-top,
+        .cover-middle,
+        .cover-bottom {
+          padding-left: 0;
+          padding-right: 0;
+        }
+
+        .cover-top {
+          padding-top: 0;
+        }
+
+        .question-page {
+          break-before: page;
+          page-break-before: always;
+        }
+
+        .no-print {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="sheet" id="sheet">
+        <section class="page cover" id="cover">
+          <div class="cover-top">
+            <div class="cover-brand">
+              <span class="dot"></span>
+              <span>Web dev prep</span>
+            </div>
+            <h1>
+              <span id="topic">Mastering the Node.js Event Loop</span>
+            </h1>
+            <p id="target">Interview Preparation & Educational Deep-Dive</p>
+            <div class="cover-meta">
+              <span class="pill">Total Questions: <span id="questionCount">0</span></span>
+              <span class="pill">Format: One Question Per Page</span>
+              <span class="pill">Updated: March 21, 2026</span>
+            </div>
+          </div>
+          <div class="cover-middle">
+            <img class="cover-image" src="title image.png" alt="Title illustration" />
+            <a
+              class="creator-badge"
+              href="https://www.linkedin.com/in/khawar-saleem-qamar"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg viewBox="0 0 24 24" fill="#0a66c2" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM0.2 8h4.6v15H0.2V8zM7.7 8h4.4v2.1h.1c.6-1.1 2.1-2.3 4.4-2.3 4.7 0 5.6 3.1 5.6 7.1V23h-4.6v-6.7c0-1.6 0-3.7-2.2-3.7-2.2 0-2.6 1.8-2.6 3.6V23H7.7V8z"/>
+              </svg>
+              Created by khawar-saleem-qamar
+            </a>
+          </div>
+          <div class="cover-bottom">
+            <div class="swipe-pill">
+              <span>Swipe to Begin</span>
+              <span class="arrow">››</span>
+            </div>
+          </div>
+        </section>
+        <div id="pages"></div>
+      </div>
+
+      <div class="download-bar no-print">
+        <button class="btn" id="downloadBtn" onclick="downloadPDF()">
+          Download PDF
+        </button>
+        <button class="btn btn-secondary" onclick="window.print()">
+          Print or Save as PDF
+        </button>
+      </div>
+    </div>
+
+    <script>
+      window.__PDF_READY = false;
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function escapeRegExp(value) {
+        return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      }
+
+      function highlightKeywords(text) {
+        const keywords = [
+          "Event Loop",
+          "Libuv",
+          "V8",
+          "Timers",
+          "Poll",
+          "Check",
+          "Microtasks",
+          "Macrotasks",
+          "process.nextTick",
+          "setImmediate",
+          "Promises",
+          "Thread Pool",
+          "worker_threads",
+          "I/O",
+          "GC",
+        ];
+
+        let output = escapeHtml(text);
+        keywords.forEach((word) => {
+          const hasNonWord = /[^a-z0-9_]/i.test(word);
+          const boundary = hasNonWord ? "" : "\\b";
+          const pattern = new RegExp(`${boundary}${escapeRegExp(word)}${boundary}`, "gi");
+          output = output.replace(pattern, (match) => `<span class="highlight">${match}</span>`);
+        });
+        return output;
+      }
+
+      function formatAnswer(text) {
+        const safe = text || "";
+        const numberedMatch = safe.match(/\d+\.\s+/);
+        if (numberedMatch) {
+          const parts = safe.split(/\d+\.\s+/).filter(Boolean);
+          const items = parts
+            .map((part) => `<li>${highlightKeywords(part.trim())}</li>`)
+            .join("");
+          return `<ol>${items}</ol>`;
+        }
+
+        const sentenceMatches = safe.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+        const sentences = sentenceMatches.map((s) => s.trim()).filter(Boolean);
+        if (sentences.length >= 3) {
+          const first = `<p>${highlightKeywords(sentences[0].trim())}</p>`;
+          const rest = sentences.slice(1).map((s) => `<li>${highlightKeywords(s.trim())}</li>`).join("");
+          return `${first}<ul>${rest}</ul>`;
+        }
+
+        return `<p>${highlightKeywords(safe.trim())}</p>`;
+      }
+
+      function isCommentOnly(code) {
+        const trimmed = (code || "").trim();
+        if (!trimmed) return true;
+        const withoutLineComments = trimmed.replace(/^\s*\/\/.*$/gm, "");
+        const withoutBlockComments = withoutLineComments.replace(/\/\*[\s\S]*?\*\//g, "");
+        return withoutBlockComments.trim().length === 0;
+      }
+
+      function formatCommentText(code) {
+        const lines = (code || "")
+          .split(/\r?\n/)
+          .map((line) => line.replace(/^\s*\/\/\s?/, "").trim())
+          .filter(Boolean);
+        if (lines.length === 0) return "<p>No code example provided.</p>";
+        const paragraphs = lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("");
+        return paragraphs;
+      }
+
+      function highlightCode(code) {
+        let output = escapeHtml(code || "");
+        output = output.replace(/(\/\*[\s\S]*?\*\/|\/\/[^\n]*)/g, "<span class=\"tok-comment\">$1</span>");
+        output = output.replace(/(['\"`])(?:\\.|(?!\1).)*\1/g, "<span class=\"tok-string\">$&</span>");
+        output = output.replace(/\b(const|let|var|function|return|if|else|for|while|class|new|try|catch|await|async|import|from|require|export|default|throw)\b/g, "<span class=\"tok-keyword\">$1</span>");
+        output = output.replace(/\b(\d+)\b/g, "<span class=\"tok-number\">$1</span>");
+        output = output.replace(/\b([A-Za-z_][A-Za-z0-9_]*)\s*(?=\()/g, "<span class=\"tok-fn\">$1</span>");
+        output = output.replace(/\b(process|Promise|setTimeout|setImmediate|setInterval|console|fs|net|require)\b/g, "<span class=\"tok-const\">$1</span>");
+        return output;
+      }
+
+      function createQuestionPage(item, total, topic) {
+        const page = document.createElement("section");
+        page.className = "page question-page";
+
+        const topbar = document.createElement("div");
+        topbar.className = "question-topbar";
+
+        const topicTag = document.createElement("div");
+        topicTag.className = "topic-tag";
+        topicTag.textContent = topic;
+
+        const badge = document.createElement("div");
+        badge.className = "question-badge";
+        badge.textContent = `Q${item.id.toString().padStart(2, "0")}`;
+
+        topbar.appendChild(topicTag);
+        topbar.appendChild(badge);
+
+        const header = document.createElement("div");
+        header.className = "question-header";
+
+        const number = document.createElement("div");
+        number.className = "question-number";
+        number.textContent = `Question ${item.id} of ${total}`;
+
+        header.appendChild(number);
+
+        const questionBlock = document.createElement("div");
+        questionBlock.className = "question-block";
+
+        const title = document.createElement("div");
+        title.className = "question-title";
+        title.innerHTML = highlightKeywords(item.question || "");
+
+        questionBlock.appendChild(title);
+
+        const approachSection = document.createElement("div");
+        approachSection.className = "approach-section";
+
+        const approachLabel = document.createElement("div");
+        approachLabel.className = "section-label";
+        approachLabel.textContent = "Approach";
+
+        const approachText = document.createElement("div");
+        approachText.className = "approach-text";
+        approachText.textContent = item.approach || "";
+
+        approachSection.appendChild(approachLabel);
+        approachSection.appendChild(approachText);
+
+        const answerSection = document.createElement("div");
+        answerSection.className = "answer-section";
+
+        const answerLabel = document.createElement("div");
+        answerLabel.className = "section-label";
+        answerLabel.textContent = "Answer";
+
+        const answerContent = document.createElement("div");
+        answerContent.className = "answer-content";
+        answerContent.innerHTML = formatAnswer(item.answer || "");
+
+        answerSection.appendChild(answerLabel);
+        answerSection.appendChild(answerContent);
+
+        const codeLabel = document.createElement("div");
+        codeLabel.className = "code-label";
+        codeLabel.textContent = "Code Example";
+
+        const codeExample = item.code_example || "";
+        let codeBlock;
+        if (isCommentOnly(codeExample)) {
+          codeBlock = document.createElement("div");
+          codeBlock.className = "code-text";
+          codeBlock.innerHTML = formatCommentText(codeExample);
+        } else {
+          const pre = document.createElement("pre");
+          const code = document.createElement("code");
+          code.innerHTML = highlightCode(codeExample);
+          pre.appendChild(code);
+          codeBlock = pre;
+        }
+
+        page.appendChild(topbar);
+        page.appendChild(header);
+        page.appendChild(questionBlock);
+        page.appendChild(approachSection);
+        page.appendChild(answerSection);
+        page.appendChild(document.createElement("div")).className = "divider-line";
+        page.appendChild(codeLabel);
+        page.appendChild(codeBlock);
+
+        return page;
+      }
+
+      async function loadQuestions() {
+        try {
+          const response = await fetch("nodejs-eventloop-question.json", { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error("Failed to load questions");
+          }
+          const data = await response.json();
+          const questions = data.questions || [];
+
+          document.getElementById("topic").innerHTML = data.topic || "Node.js Event Loop";
+          document.getElementById("target").textContent = data.target || "Interview Preparation";
+          document.getElementById("questionCount").textContent = questions.length;
+
+          const pages = document.getElementById("pages");
+          pages.innerHTML = "";
+          questions.forEach((item) => {
+            pages.appendChild(createQuestionPage(item, questions.length, data.topic || "Node.js Event Loop"));
+          });
+
+          const endPage = document.createElement("section");
+          endPage.className = "page end-page";
+          endPage.innerHTML = `
+            <div class="end-card" style="width: 100%;">
+              <div class="end-pill">Follow On LinkedIn</div>
+              <div class="end-title">Enjoyed This Guide?</div>
+              <div class="end-subtitle">
+                Stay ahead with web development insights, Node.js deep dives, and practical interview prep.
+              </div>
+              <div class="author">Khawar Saleem Qamar</div>
+              <a
+                class="author-link"
+                href="https://www.linkedin.com/in/khawar-saleem-qamar"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <svg viewBox="0 0 24 24" fill="#0a66c2" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM0.2 8h4.6v15H0.2V8zM7.7 8h4.4v2.1h.1c.6-1.1 2.1-2.3 4.4-2.3 4.7 0 5.6 3.1 5.6 7.1V23h-4.6v-6.7c0-1.6 0-3.7-2.2-3.7-2.2 0-2.6 1.8-2.6 3.6V23H7.7V8z"/>
+                </svg>
+                khawar-saleem-qamar
+              </a>
+              <div class="benefits">
+                Follow for:
+                <ul>
+                  <li>Practical web development knowledge and best practices</li>
+                  <li>Web performance tips and system design insights</li>
+                  <li>Career-focused interview prep and project breakdowns</li>
+                </ul>
+              </div>
+            </div>
+          `;
+          pages.appendChild(endPage);
+          window.__PDF_READY = true;
+        } catch (error) {
+          console.error("Load Error:", error);
+          const pages = document.getElementById("pages");
+          pages.innerHTML = "<p style='padding: 12px 0; color: #b91c1c; font-weight: 600;'>Unable to load questions. Please open via http://localhost:3000/nodejs-eventloop-questions.html</p>";
+        }
+      }
+
+      async function downloadPDF() {
+        const btn = document.getElementById("downloadBtn");
+        const originalText = btn.textContent;
+        btn.textContent = "Generating PDF...";
+        btn.disabled = true;
+
+        try {
+          const response = await fetch("/nodejs-eventloop.pdf");
+          if (!response.ok) {
+            throw new Error("PDF generation failed");
+          }
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "NodeJS_Event_Loop_Questions.pdf";
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url);
+
+          btn.textContent = "Downloaded Successfully";
+          btn.style.background = "linear-gradient(135deg, #22c55e, #16a34a)";
+        } catch (error) {
+          console.error("PDF Generation Error:", error);
+          btn.textContent = "Error - Use Print Button";
+          btn.style.background = "linear-gradient(135deg, #dc2626, #991b1b)";
+        }
+
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.background = "linear-gradient(135deg, #0ea5e9, #0284c7)";
+          btn.disabled = false;
+        }, 2500);
+      }
+
+      window.addEventListener("load", loadQuestions);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,356 @@
+{
+  "topic": "Mastering the Node.js Event Loop",
+  "target": "Interview Preparation & Educational Deep-Dive",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Explain the high-level architecture of the Node.js Event Loop.",
+      "approach": "Identify the relationship between V8, Libuv, and the OS.",
+      "answer": "The Event Loop is provided by the Libuv C library. While V8 executes JavaScript, Libuv handles the queuing of events. It consists of six main phases: Timers, Pending Callbacks, Idle/Prepare, Poll, Check, and Close Callbacks.",
+      "code_example": "// Internal architecture - no direct code, but managed via: \n// node --trace-event-categories node.async_hooks"
+    },
+    {
+      "id": 2,
+      "question": "What is the specific order of the 6 phases in the Event Loop?",
+      "approach": "List the phases in their mechanical execution order.",
+      "answer": "1. Timers (setTimeout/Interval), 2. Pending Callbacks (OS errors), 3. Idle, Prepare (Internal), 4. Poll (I/O), 5. Check (setImmediate), 6. Close Callbacks (socket.on('close')).",
+      "code_example": "/* Execution Flow: Timers -> Pending -> Idle -> Poll -> Check -> Close */"
+    },
+    {
+      "id": 3,
+      "question": "How does 'process.nextTick' differ from 'setImmediate'?",
+      "approach": "Explain the timing relative to the phase transition.",
+      "answer": "nextTick fires immediately after the current operation, before the loop continues to the next phase. setImmediate fires specifically in the 'Check' phase of the loop.",
+      "code_example": "process.nextTick(() => console.log('Tick'));\nsetImmediate(() => console.log('Immediate'));\n// Tick always wins."
+    },
+    {
+      "id": 4,
+      "question": "What are Microtasks in Node.js and when are they executed?",
+      "approach": "Define the Microtask queue (Promises and nextTick).",
+      "answer": "Microtasks include process.nextTick and Promise callbacks. Node.js executes the entire Microtask queue after every single phase of the event loop and after every individual callback in the Timers/Poll phases.",
+      "code_example": "Promise.resolve().then(() => console.log('Promise'));\n// Executed as soon as the synchronous stack is empty."
+    },
+    {
+      "id": 5,
+      "question": "Why is 'process.nextTick' dangerous if overused?",
+      "approach": "Explain the concept of 'I/O Starvation'.",
+      "answer": "Because nextTick is processed before the loop moves to the next phase, a recursive nextTick call can 'starve' the event loop, preventing it from ever reaching the Poll or Timers phases.",
+      "code_example": "function starve() { process.nextTick(starve); }\n// The Event Loop will never move to I/O or Timers."
+    },
+    {
+      "id": 6,
+      "question": "Explain the 'Poll' phase's 'Blocking' behavior.",
+      "approach": "Discuss how Node waits for I/O when the queue is empty.",
+      "answer": "In the Poll phase, if there are no scripts to execute and no 'setImmediate' scheduled, Node will block and wait for I/O events to arrive for a calculated amount of time before moving back to Timers.",
+      "code_example": "// Node stays in 'Poll' until a network request or filesystem event occurs."
+    },
+    {
+      "id": 7,
+      "question": "How does the Thread Pool size affect crypto and fs modules?",
+      "approach": "Explain Libuv's offloading mechanism for heavy tasks.",
+      "answer": "Tasks like 'fs.readFile' and 'crypto.pbkdf2' are offloaded to the Libuv thread pool. If the pool is full, these tasks must wait, even if the CPU has idle cores.",
+      "code_example": "process.env.UV_THREADPOOL_SIZE = 8; // Adjusting pool size."
+    },
+    {
+      "id": 8,
+      "question": "What happens if a timer is set for 10ms but a synchronous task takes 50ms?",
+      "approach": "Explain that timers are 'minimum thresholds', not guarantees.",
+      "answer": "The timer callback will be moved to the Timers queue at 10ms, but the Event Loop cannot check that queue until the 50ms synchronous task finishes. The delay will be ~50ms.",
+      "code_example": "setTimeout(() => console.log('Done'), 10);\nconst end = Date.now() + 50;\nwhile(Date.now() < end) {} // Block"
+    },
+    {
+      "id": 9,
+      "question": "How do you handle heavy CPU tasks without blocking the loop?",
+      "approach": "Suggest Worker Threads or Child Processes.",
+      "answer": "For CPU-bound tasks (image processing, heavy math), use the 'worker_threads' module to run code on a separate thread, keeping the main Event Loop free to handle I/O.",
+      "code_example": "const { Worker } = require('worker_threads');\nnew Worker('./cpuTask.js');"
+    },
+    {
+      "id": 10,
+      "question": "What is the 'Check' phase used for?",
+      "approach": "Identify the purpose of setImmediate.",
+      "answer": "The Check phase allows a person to execute a callback immediately after the Poll phase has completed. This is the primary home for 'setImmediate'.",
+      "code_example": "setImmediate(() => console.log('Check Phase'));"
+    },
+    {
+      "id": 11,
+      "question": "Explain 'Close Callbacks' phase.",
+      "approach": "Define the cleanup phase.",
+      "answer": "This phase executes callbacks for closed handles, like 'socket.on('close', ...)' or 'process.on('exit')'. It is the final stage of a loop iteration.",
+      "code_example": "socket.on('close', () => console.log('Cleanup done'));"
+    },
+    {
+      "id": 12,
+      "question": "In what order do multiple Promises resolve?",
+      "approach": "Explain FIFO (First-In-First-Out) in the microtask queue.",
+      "answer": "Promises are added to the microtask queue in the order they are resolved. They are then executed in that same order.",
+      "code_example": "Promise.resolve(1).then(console.log);\nPromise.resolve(2).then(console.log);\n// Output: 1, 2"
+    },
+    {
+      "id": 13,
+      "question": "What is the difference between a Macrotask and a Microtask?",
+      "approach": "Categorize common Node.js functions.",
+      "answer": "Macrotasks: setTimeout, setInterval, setImmediate, I/O. Microtasks: process.nextTick, Promises. Microtasks are high-priority and clear between macrotasks.",
+      "code_example": "// setTimeout (Macro) vs Promise (Micro)"
+    },
+    {
+      "id": 14,
+      "question": "What is 'Pending Callbacks' phase used for?",
+      "approach": "Explain the handling of system-level errors.",
+      "answer": "This phase executes I/O callbacks deferred from the previous loop iteration, typically system errors like a TCP connection ECONNREFUSED.",
+      "code_example": "// System handles this internally for pending OS tasks."
+    },
+    {
+      "id": 15,
+      "question": "Does Node.js use a separate thread for DNS lookups?",
+      "approach": "Explain the thread-pool nature of DNS.",
+      "answer": "Yes, 'dns.lookup' is a synchronous call in the underlying OS, so Node.js offloads it to the Libuv thread pool to keep the main loop non-blocking.",
+      "code_example": "require('dns').lookup('google.com', (err, add) => {});"
+    },
+    {
+      "id": 16,
+      "question": "How can you monitor Event Loop lag?",
+      "approach": "Reference the 'perf_hooks' module.",
+      "answer": "Use 'perf_hooks' to measure the delay between when a timer was scheduled and when it actually executed.",
+      "code_example": "const { monitorEventLoopDelay } = require('perf_hooks');\nconst h = monitorEventLoopDelay();\nh.enable();"
+    },
+    {
+      "id": 17,
+      "question": "What is the relationship between V8 Call Stack and Event Loop?",
+      "approach": "Explain that the loop only runs when the stack is empty.",
+      "answer": "The Event Loop cannot push a callback onto the V8 Call Stack until the stack is completely empty. Synchronous code always has 100% priority.",
+      "code_example": "function a() { b(); }\nfunction b() { console.log('Stack'); }\na();"
+    },
+    {
+      "id": 18,
+      "question": "Why use setImmediate(fn) instead of setTimeout(fn, 0) inside I/O?",
+      "approach": "Explain performance and reliability within the Poll phase.",
+      "answer": "Inside an I/O callback, 'setImmediate' will always run before 'setTimeout' because the loop enters the 'Check' phase immediately after 'Poll'.",
+      "code_example": "fs.readFile('x', () => {\n  setImmediate(() => console.log('First'));\n  setTimeout(() => console.log('Second'), 0);\n});"
+    },
+    {
+      "id": 19,
+      "question": "What are 'Idle' and 'Prepare' phases?",
+      "approach": "Define internal-only phases.",
+      "answer": "These are internal phases used by Libuv for house-keeping and preparing the loop for the Poll phase. Developers cannot directly schedule callbacks here.",
+      "code_example": "// Internal only - no API access."
+    },
+    {
+      "id": 20,
+      "question": "How does 'async/await' impact the Event Loop?",
+      "approach": "Clarify that async/await is syntactic sugar for Promises.",
+      "answer": "An 'await' expression pauses the execution of the async function and resumes it as a Microtask once the promise resolves. It does not block the main thread.",
+      "code_example": "async function run() { await somePromise(); console.log('Resume'); }"
+    },
+    {
+      "id": 21,
+      "question": "What is 'I/O Starvation'?",
+      "approach": "Explain how a flood of high-priority tasks stops I/O.",
+      "answer": "If Microtasks (Promises/nextTick) are constantly being added, the Event Loop never moves to the Poll phase to handle incoming network or file data.",
+      "code_example": "const loop = () => Promise.resolve().then(loop);\nloop();"
+    },
+    {
+      "id": 22,
+      "question": "Can you force the Event Loop to skip a phase?",
+      "approach": "Explain the fixed nature of the loop.",
+      "answer": "No, the loop follows a strict sequence. You can only influence which phase a callback enters using specific functions like setImmediate or setTimeout.",
+      "code_example": "// No skip() function exists."
+    },
+    {
+      "id": 23,
+      "question": "Does 'fs.readFileSync' use the Event Loop?",
+      "approach": "Contrast synchronous vs asynchronous I/O.",
+      "answer": "No, Sync methods block the main thread entirely. The Event Loop is paused until the file is fully read into memory.",
+      "code_example": "const data = fs.readFileSync('file.txt'); // Blocks everything."
+    },
+    {
+      "id": 24,
+      "question": "What is a 'Handle' in Libuv?",
+      "approach": "Define the abstraction of long-lived objects.",
+      "answer": "A handle is a Libuv abstraction for a long-lived object that performs certain operations while active, like a TCP server or a timer.",
+      "code_example": "// Internal C structure used by Node core."
+    },
+    {
+      "id": 25,
+      "question": "What is a 'Request' in Libuv?",
+      "approach": "Distinguish between handles and short-lived operations.",
+      "answer": "Requests are short-lived operations like 'write' or 'connect' performed over a handle. They usually represent a single I/O operation.",
+      "code_example": "// Internal C structure."
+    },
+    {
+      "id": 26,
+      "question": "Explain the 'unref()' method on timers.",
+      "approach": "Discuss loop persistence.",
+      "answer": "Normally, a timer keeps the Event Loop alive. 'timer.unref()' tells Node that the loop can exit even if this timer is still pending.",
+      "code_example": "const t = setTimeout(() => {}, 10000);\nt.unref(); // App exits immediately if no other work."
+    },
+    {
+      "id": 27,
+      "question": "What is 'ref()' used for?",
+      "approach": "Reverse of unref.",
+      "answer": "It restores the default behavior of a timer/socket, forcing the Event Loop to stay active until the handle is closed or timed out.",
+      "code_example": "t.ref();"
+    },
+    {
+      "id": 28,
+      "question": "Does Node.js use the OS Kernel for all I/O?",
+      "approach": "Explain Epoll/Kqueue usage.",
+      "answer": "Node.js uses OS-specific mechanisms like epoll (Linux), kqueue (macOS), or IOCP (Windows) for networking. File I/O is usually handled via the thread pool.",
+      "code_example": "// Platform-specific polling."
+    },
+    {
+      "id": 29,
+      "question": "Why is 'setTimeout(fn, 1)' sometimes faster than 'setTimeout(fn, 0)'?",
+      "approach": "Explain timer nesting and clamping.",
+      "answer": "Node.js converts 0ms to 1ms. Depending on when the loop starts, a 1ms timer might be processed in the current iteration or the next one.",
+      "code_example": "setTimeout(() => {}, 0); // Becomes 1ms."
+    },
+    {
+      "id": 30,
+      "question": "How does 'EventEmitter' relate to the Event Loop?",
+      "approach": "Clarify that EventEmitters are mostly synchronous.",
+      "answer": "By default, EventEmitter emits events synchronously. The listener's code runs on the current stack, not in a future phase of the event loop.",
+      "code_example": "emitter.on('e', () => console.log('Sync'));\nemitter.emit('e');\nconsole.log('After'); // 'Sync' prints first."
+    },
+    {
+      "id": 31,
+      "question": "How can you make an EventEmitter asynchronous?",
+      "approach": "Wrap the emit in a timer or nextTick.",
+      "answer": "To ensure the listener runs in a future loop iteration, wrap the 'emit' call in 'setImmediate' or 'process.nextTick'.",
+      "code_example": "setImmediate(() => emitter.emit('event'));"
+    },
+    {
+      "id": 32,
+      "question": "Explain the 'Don't Block the Event Loop' rule for SaaS scaling.",
+      "approach": "Relate loop health to throughput.",
+      "answer": "If one request blocks the loop with a heavy calculation, all other users' requests (even simple ones) are stuck waiting, causing high latency.",
+      "code_example": "// Avoid: JSON.parse(hugeString) synchronously."
+    },
+    {
+      "id": 33,
+      "question": "What is the maximum number of threads in the Thread Pool?",
+      "approach": "Identify the hard limit.",
+      "answer": "Libuv supports a maximum of 128 threads via the UV_THREADPOOL_SIZE variable.",
+      "code_example": "export UV_THREADPOOL_SIZE=128"
+    },
+    {
+      "id": 34,
+      "question": "Is the Event Loop created per-process or per-thread?",
+      "approach": "Explain the single-loop nature.",
+      "answer": "There is one Event Loop per process. If you use Worker Threads, each Worker has its own independent Event Loop.",
+      "code_example": "// Worker A loop != Main loop."
+    },
+    {
+      "id": 35,
+      "question": "How does Node.js handle 'process.on(uncaughtException)'?",
+      "approach": "Explain the emergency cleanup.",
+      "answer": "When an exception isn't caught, the loop begins an emergency shutdown. Using this listener allows you to log the error before the process exits.",
+      "code_example": "process.on('uncaughtException', (err) => { /* log and exit */ });"
+    },
+    {
+      "id": 36,
+      "question": "What is 'Zalgo' in the context of the Event Loop?",
+      "approach": "Explain inconsistent sync/async APIs.",
+      "answer": "Zalgo refers to a function that is sometimes synchronous and sometimes asynchronous. This makes the execution order unpredictable and breaks the Event Loop flow.",
+      "code_example": "function zalgo(cb) { if(cache) cb(); else fs.readFile(..., cb); }"
+    },
+    {
+      "id": 37,
+      "question": "How do you fix 'Zalgo'?",
+      "approach": "Ensure consistent asynchronicity.",
+      "answer": "Always wrap the synchronous branch in 'process.nextTick' or 'setImmediate' so the callback always runs asynchronously.",
+      "code_example": "if(cache) process.nextTick(cb); else fs.readFile(..., cb);"
+    },
+    {
+      "id": 38,
+      "question": "Does 'setImmediate' have a priority queue?",
+      "approach": "Explain the FIFO queue of the Check phase.",
+      "answer": "Yes, all setImmediate callbacks are queued and processed in the order they were scheduled during the Check phase.",
+      "code_example": "setImmediate(() => console.log(1));\nsetImmediate(() => console.log(2));\n// 1, 2"
+    },
+    {
+      "id": 39,
+      "question": "What is the 'High Water Mark' in Streams and the Event Loop?",
+      "approach": "Explain backpressure.",
+      "answer": "It limits the amount of data buffered in memory. When reached, the loop stops reading from the source until the buffer is drained, preventing memory bloat.",
+      "code_example": "readable.pipe(writable); // Handles this automatically."
+    },
+    {
+      "id": 40,
+      "question": "How does 'Aborting' an async task work?",
+      "approach": "Mention AbortController.",
+      "answer": "AbortController allows you to signal the Event Loop to stop an operation (like a fetch or file read) and trigger the callback early with an 'AbortError'.",
+      "code_example": "const ac = new AbortController();\nfs.readFile(path, { signal: ac.signal }, cb);\nac.abort();"
+    },
+    {
+      "id": 41,
+      "question": "Explain 'nextTick' vs 'Promise' priority.",
+      "approach": "Clarify the sub-queues of Microtasks.",
+      "answer": "In Node.js, the 'nextTickQueue' is processed entirely before the 'Promise' microtask queue (resolved promises).",
+      "code_example": "Promise.resolve().then(() => console.log('Promise'));\nprocess.nextTick(() => console.log('Tick'));\n// Tick, then Promise."
+    },
+    {
+      "id": 42,
+      "question": "Can the Poll phase stay open forever?",
+      "approach": "Discuss loop exit conditions.",
+      "answer": "No. If the Poll phase is empty and there are no active handles (timers/sockets) keeping the loop alive, the loop exits and the process terminates.",
+      "code_example": "// Process exits after last callback."
+    },
+    {
+      "id": 43,
+      "question": "What happens if you throw an error inside a 'setTimeout'?",
+      "approach": "Explain the crash mechanism.",
+      "answer": "Since the original stack is gone, the error bubbles up to the Event Loop. If not caught by 'process.on(uncaughtException)', the process crashes.",
+      "code_example": "setTimeout(() => { throw new Error('Boom'); }, 100);"
+    },
+    {
+      "id": 44,
+      "question": "How does Node 18+ handle Top-Level Await?",
+      "approach": "Explain the impact on module loading.",
+      "answer": "Top-level await pauses the module evaluation but does not block the Event Loop. Other modules can still be processed while waiting.",
+      "code_example": "const data = await fetch(url); // Top-level."
+    },
+    {
+      "id": 45,
+      "question": "Does 'console.log' block the Event Loop?",
+      "approach": "Distinguish between TTY and Files.",
+      "answer": "In most cases, it is synchronous when writing to a terminal (TTY) or a file to prevent output interleaving, but this can vary by OS and pipe configuration.",
+      "code_example": "console.log('Sync writing...');"
+    },
+    {
+      "id": 46,
+      "question": "What is the 'Heap' vs the 'Stack' in the Loop?",
+      "approach": "Explain memory management.",
+      "answer": "The Stack holds the current function execution. The Heap holds the objects and closures that the Event Loop callbacks reference once they are pulled from the queue.",
+      "code_example": "// Stack is for execution, Heap for persistent data."
+    },
+    {
+      "id": 47,
+      "question": "What is the 'Garbage Collector's' role in the loop?",
+      "approach": "Identify the GC impact on performance.",
+      "answer": "The GC runs periodically. If memory usage is high, a 'Full GC' can stop the execution of the Event Loop (Stop-the-world) for several milliseconds.",
+      "code_example": "// node --expose-gc to manually trigger."
+    },
+    {
+      "id": 48,
+      "question": "How do you handle 1 million concurrent connections?",
+      "approach": "Focus on the Poll phase efficiency.",
+      "answer": "Node.js excels here because it doesn't create a thread per connection. It uses the Poll phase to watch all 1M sockets and only executes code when a socket has data.",
+      "code_example": "net.createServer((socket) => { ... }).listen(80);"
+    },
+    {
+      "id": 49,
+      "question": "Can a single 'setTimeout' callback block the loop?",
+      "approach": "Reinforce the single-threaded nature.",
+      "answer": "Yes. If the callback function contains a massive 'for' loop, no other timers or I/O callbacks will execute until that function returns.",
+      "code_example": "setTimeout(() => { while(true){} }, 10);"
+    },
+    {
+      "id": 50,
+      "question": "Why is Node.js better for I/O but worse for Math than Python/C++?",
+      "approach": "Summarize the Event Loop's core trade-off.",
+      "answer": "Node's Event Loop allows it to handle massive I/O with very low overhead. However, because it's single-threaded, it can't spread heavy math across CPU cores without extra effort.",
+      "code_example": "// Efficient I/O vs. Synchronous Blocking Math."
+    }
+  ]
+}
